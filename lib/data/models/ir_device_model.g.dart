@@ -6,8 +6,8 @@ part of 'ir_device_model.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_IrDeviceModel _$IrDeviceModelFromJson(Map<String, dynamic> json) =>
-    _IrDeviceModel(
+IrDeviceModel _$IrDeviceModelFromJson(Map<String, dynamic> json) =>
+    IrDeviceModel(
       id: (json['id'] as num).toInt(),
       category: json['category'] as String,
       brand: json['brand'] as String,
@@ -22,7 +22,7 @@ _IrDeviceModel _$IrDeviceModelFromJson(Map<String, dynamic> json) =>
       ),
     );
 
-Map<String, dynamic> _$IrDeviceModelToJson(_IrDeviceModel instance) =>
+Map<String, dynamic> _$IrDeviceModelToJson(IrDeviceModel instance) =>
     <String, dynamic>{
       'id': instance.id,
       'category': instance.category,

@@ -1,24 +1,31 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import '../../domain/entities/ir_device.dart';
 
-part 'ir_device_model.freezed.dart';
 part 'ir_device_model.g.dart';
 
-@freezed
-class IrDeviceModel with _$IrDeviceModel {
-  const IrDeviceModel._();
+@JsonSerializable(explicitToJson: true)
+class IrDeviceModel {
+  final int id;
+  final String category;
+  final String brand;
+  final String series;
+  final String model;
+  final int carrierFrequency;
+  final Map<String, List<int>> buttons;
 
-  const factory IrDeviceModel({
-    required int id,
-    required String category,
-    required String brand,
-    required String series,
-    required String model,
-    required int carrierFrequency,
-    required Map<String, List<int>> buttons,
-  }) = _IrDeviceModel;
+  IrDeviceModel({
+    required this.id,
+    required this.category,
+    required this.brand,
+    required this.series,
+    required this.model,
+    required this.carrierFrequency,
+    required this.buttons,
+  });
 
   factory IrDeviceModel.fromJson(Map<String, dynamic> json) => _$IrDeviceModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$IrDeviceModelToJson(this);
 
   IrDevice toEntity() {
     return IrDevice(
