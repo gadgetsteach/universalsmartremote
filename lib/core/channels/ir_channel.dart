@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 class IrChannel {
@@ -29,7 +30,9 @@ class IrChannel {
       });
       return result;
     } on PlatformException catch (e) {
-      print("Transmit error: ${e.message}");
+      if (kDebugMode) {
+        print("Transmit error: ${e.message}");
+      }
       return false;
     }
   }
