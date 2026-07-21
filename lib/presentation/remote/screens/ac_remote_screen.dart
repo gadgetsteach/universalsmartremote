@@ -35,10 +35,10 @@ class _AcRemoteScreenState extends ConsumerState<AcRemoteScreen> {
         );
         return;
       }
-      final success = await repo.transmit(device.carrierFrequency, pattern);
+      final error = await repo.transmit(device.carrierFrequency, pattern);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(success ? 'Sent $command command' : 'Failed to send $command')),
+          SnackBar(content: Text(error == null ? 'Sent $command command' : 'Failed to send $command: $error')),
         );
       }
     }

@@ -37,10 +37,10 @@ class _RemoteTestScreenState extends ConsumerState<RemoteTestScreen> {
     }
 
     if (powerPattern != null) {
-      final success = await repo.transmit(device.carrierFrequency, powerPattern);
+      final error = await repo.transmit(device.carrierFrequency, powerPattern);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(success ? 'Signal sent!' : 'Failed to send signal.')),
+        SnackBar(content: Text(error == null ? 'Signal sent!' : 'Failed to send signal: $error')),
       );
     }
   }

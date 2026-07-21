@@ -68,10 +68,7 @@ class IrRepositoryImpl implements IrRepository {
   }
 
   @override
-  Future<bool> transmit(int frequency, List<int> pattern) async {
-    return await IrChannel.transmit(
-      carrierFrequency: frequency,
-      pattern: pattern,
-    );
+  Future<String?> transmit(int frequency, List<int> pattern) {
+    return IrChannel.transmit(carrierFrequency: frequency, pattern: pattern);
   }
 }

@@ -22,18 +22,18 @@ class IrChannel {
     }
   }
 
-  static Future<bool> transmit({required int carrierFrequency, required List<int> pattern}) async {
+  static Future<String?> transmit({required int carrierFrequency, required List<int> pattern}) async {
     try {
       final bool result = await _channel.invokeMethod('transmit', {
         'carrierFrequency': carrierFrequency,
         'pattern': pattern,
       });
-      return result;
+      if (result) return null; // Success
+      return "Unknown error";
     } on PlatformException catch (e) {
-      if (kDebugMode) {
-        print("Transmit error: ${e.message}");
-      }
-      return false;
+      return e.message ?? e.code;
+    } catch (e) {
+      return e.toString();
     }
   }
 }

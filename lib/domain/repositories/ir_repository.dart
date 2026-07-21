@@ -13,5 +13,5 @@ abstract class IrRepository {
   Future<void> renameSavedRemote(int id, String newName);
 
   Future<bool> hasIrEmitter();
-  Future<bool> transmit(int frequency, List<int> pattern);
+  Future<String?> transmit(int carrierFrequency, List<int> pattern);
 }

@@ -143,12 +143,12 @@ class TvRemoteScreen extends ConsumerWidget {
         );
         return;
       }
-      final success = await repo.transmit(device.carrierFrequency, pattern);
+      final error = await repo.transmit(device.carrierFrequency, pattern);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              success ? 'Sent $command command' : 'Failed to send $command',
+              error == null ? 'Sent $command command' : 'Failed to send $command: $error',
             ),
           ),
         );
