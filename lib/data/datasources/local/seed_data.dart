@@ -76,7 +76,7 @@ List<IrDeviceModel> getSeedData() {
     'Toshiba', 'Trane', 'Videocon', 'Voltas', 'Whirlpool', 'York'
   ];
 
-  Map<String, List<int>> generateCompositeAcButtons(int modelCode, int bitLength) {
+  Map<String, List<int>> generateCompositeAcButtons(String brand, int modelCode, int bitLength) {
     // AC remote signals transmit composite data packets containing the complete state
     // (including mode, fan speed, and exact temperature) rather than single function commands.
     // This generates a pseudo-valid composite IR pattern of the specified bit length.
@@ -96,9 +96,10 @@ List<IrDeviceModel> getSeedData() {
       return pattern;
     }
 
+    final isMitsubishi = brand == 'Mitsubishi';
     return {
-      'power': generatePattern(modelCode * 10 + 1),
-      'swing': generatePattern(modelCode * 10 + 2),
+      'power': generatePattern(modelCode * 10 + (isMitsubishi ? 2 : 1)),
+      'swing': generatePattern(modelCode * 10 + (isMitsubishi ? 1 : 2)),
       'temp_up': generatePattern(modelCode * 10 + 3),
       'temp_down': generatePattern(modelCode * 10 + 4),
       'mode': generatePattern(modelCode * 10 + 5),
@@ -158,7 +159,7 @@ List<IrDeviceModel> getSeedData() {
         series: 'Inverter',
         model: 'Model ${modelId.toString().padLeft(3, '0')}',
         carrierFrequency: 38000,
-        buttons: generateCompositeAcButtons(modelId, bitLength),
+        buttons: generateCompositeAcButtons(brand, modelId, bitLength),
       )
     );
   }
@@ -193,7 +194,7 @@ List<IrDeviceModel> getSeedData() {
             series: 'Inverter ${random.nextInt(3) + 1} Ton',
             model: 'Model $i-${random.nextInt(9000) + 1000}',
             carrierFrequency: 38000,
-            buttons: generateCompositeAcButtons(i, bitLength),
+            buttons: generateCompositeAcButtons(brand, i, bitLength),
           )
         );
       }
