@@ -16,11 +16,10 @@ class TvRemoteScreen extends ConsumerWidget {
       final repo = ref.read(irRepositoryProvider);
       final hasEmitter = await repo.hasIrEmitter();
       if (!hasEmitter) {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Simulated sending $command command (No IR Emitter)')),
-          );
-        }
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Simulated sending $command command (No IR Emitter)')),
+        );
         return;
       }
       await repo.transmit(device.carrierFrequency, pattern);
