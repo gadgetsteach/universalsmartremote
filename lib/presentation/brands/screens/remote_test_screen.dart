@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../domain/entities/ir_device.dart';
 import '../../home/providers/ir_provider.dart';
+import '../../home/providers/saved_remotes_provider.dart';
 import '../providers/brands_provider.dart';
 
 class RemoteTestScreen extends ConsumerStatefulWidget {
@@ -125,6 +126,7 @@ class _RemoteTestScreenState extends ConsumerState<RemoteTestScreen> {
                         final repo = ref.read(irRepositoryProvider);
                         final defaultName = '${widget.brand} ${widget.category}';
                         await repo.saveUserRemote(defaultName, currentDevice.id);
+                        ref.invalidate(savedRemotesProvider);
                         
                         if (!context.mounted) return;
                         
