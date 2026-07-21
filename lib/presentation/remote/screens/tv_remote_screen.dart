@@ -28,7 +28,7 @@ class TvRemoteScreen extends ConsumerWidget {
         title: deviceAsync.when(
           data: (device) => Text('${device?.brand ?? ''} TV Remote'),
           loading: () => const Text('Loading...'),
-          error: (_, __) => const Text('Error'),
+          error: (_, _) => const Text('Error'),
         ),
       ),
       body: deviceAsync.when(

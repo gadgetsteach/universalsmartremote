@@ -51,7 +51,7 @@ class _AcRemoteScreenState extends ConsumerState<AcRemoteScreen> {
         title: deviceAsync.when(
           data: (device) => Text('${device?.brand ?? ''} AC Remote'),
           loading: () => const Text('Loading...'),
-          error: (_, __) => const Text('Error'),
+          error: (_, _) => const Text('Error'),
         ),
       ),
       body: deviceAsync.when(
