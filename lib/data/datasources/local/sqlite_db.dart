@@ -21,6 +21,9 @@ class SQLiteDB {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
 
+    // FOR DEV: delete database to force re-seed with large data set
+    await deleteDatabase(path);
+
     return await openDatabase(
       path,
       version: 1,
