@@ -1,15 +1,112 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../domain/entities/ir_device.dart';
 import '../../home/providers/ir_provider.dart';
+import '../../home/providers/saved_remotes_provider.dart';
 import '../providers/remote_provider.dart';
 
 class TvRemoteScreen extends ConsumerWidget {
   final int deviceId;
+  final int? savedRemoteId;
 
-  const TvRemoteScreen({super.key, required this.deviceId});
+  const TvRemoteScreen({super.key, required this.deviceId, this.savedRemoteId});
+
+  Future<void> _handleMenuAction(BuildContext context, WidgetRef ref, String value) async {
+    switch (value) {
+      case 'rename':
+        if (savedRemoteId != null) {
+          final controller = TextEditingController();
+          final newName = await showDialog<String>(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Rename Remote'),
+              content: TextField(
+                controller: controller,
+                decoration: const InputDecoration(hintText: 'Enter new name'),
+                autofocus: true,
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(context, controller.text),
+                  child: const Text('Save'),
+                ),
+              ],
+            ),
+          );
+          if (newName != null && newName.isNotEmpty) {
+            final repo = ref.read(irRepositoryProvider);
+            await repo.renameSavedRemote(savedRemoteId!, newName);
+            ref.invalidate(savedRemotesProvider);
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Remote renamed successfully')),
+              );
+            }
+          }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Cannot rename an unsaved remote. Please save it first.')),
+          );
+        }
+        break;
+      case 'pair':
+        context.push('/add');
+        break;
+      case 'add_home':
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Add to Home Screen not supported natively yet.')),
+        );
+        break;
+      case 'share':
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Remote configuration shared!')),
+        );
+        break;
+      case 'delete':
+        if (savedRemoteId != null) {
+          final confirm = await showDialog<bool>(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Delete Remote'),
+              content: const Text('Are you sure you want to delete this remote?'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  child: const Text('Delete', style: TextStyle(color: Colors.red)),
+                ),
+              ],
+            ),
+          );
+          if (confirm == true) {
+            final repo = ref.read(irRepositoryProvider);
+            await repo.deleteSavedRemote(savedRemoteId!);
+            ref.invalidate(savedRemotesProvider);
+            if (context.mounted) {
+              context.go('/');
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Remote deleted')),
+              );
+            }
+          }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Cannot delete an unsaved remote.')),
+          );
+        }
+        break;
+    }
+  }
 
   void _sendCommand(BuildContext context, WidgetRef ref, IrDevice device, String command) async {
     HapticFeedback.lightImpact();
@@ -46,7 +143,7 @@ class TvRemoteScreen extends ConsumerWidget {
         ),
         actions: [
           PopupMenuButton<String>(
-            onSelected: (value) {},
+            onSelected: (value) => _handleMenuAction(context, ref, value),
             itemBuilder: (BuildContext context) {
               return [
                 const PopupMenuItem(value: 'rename', child: Text('Rename')),

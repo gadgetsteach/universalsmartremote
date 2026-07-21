@@ -56,7 +56,7 @@ class SavedRemotesScreen extends ConsumerWidget {
                       return InkWell(
                         onTap: () {
                           final route = remote.device.category.toLowerCase() == 'tv' ? '/remote/tv' : '/remote/ac';
-                          context.push('$route/${remote.device.id}');
+                          context.push('$route/${remote.device.id}?savedId=${remote.id}');
                         },
                         borderRadius: BorderRadius.circular(16),
                         child: Card(

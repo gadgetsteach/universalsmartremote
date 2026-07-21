@@ -44,14 +44,18 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/remote/tv/:id',
         builder: (context, state) {
           final id = int.parse(state.pathParameters['id']!);
-          return TvRemoteScreen(deviceId: id);
+          final savedIdStr = state.uri.queryParameters['savedId'];
+          final savedId = savedIdStr != null ? int.tryParse(savedIdStr) : null;
+          return TvRemoteScreen(deviceId: id, savedRemoteId: savedId);
         },
       ),
       GoRoute(
         path: '/remote/ac/:id',
         builder: (context, state) {
           final id = int.parse(state.pathParameters['id']!);
-          return AcRemoteScreen(deviceId: id);
+          final savedIdStr = state.uri.queryParameters['savedId'];
+          final savedId = savedIdStr != null ? int.tryParse(savedIdStr) : null;
+          return AcRemoteScreen(deviceId: id, savedRemoteId: savedId);
         },
       ),
     ],
