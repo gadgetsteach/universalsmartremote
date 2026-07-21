@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../domain/entities/ir_device.dart';
@@ -19,6 +20,7 @@ class _AcRemoteScreenState extends ConsumerState<AcRemoteScreen> {
   String _currentMode = 'Cool';
 
   void _sendCommand(IrDevice device, String command) async {
+    HapticFeedback.lightImpact();
     final pattern = device.buttons[command];
     if (pattern != null) {
       final repo = ref.read(irRepositoryProvider);
@@ -30,7 +32,12 @@ class _AcRemoteScreenState extends ConsumerState<AcRemoteScreen> {
         );
         return;
       }
-      await repo.transmit(device.carrierFrequency, pattern);
+      final success = await repo.transmit(device.carrierFrequency, pattern);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(success ? 'Sent $command command' : 'Failed to send $command')),
+        );
+      }
     }
   }
 
@@ -139,17 +146,18 @@ class _AcRemoteScreenState extends ConsumerState<AcRemoteScreen> {
                 const SizedBox(height: 16),
                 
                 // Temperature Pill
-                Container(
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surface,
-                    borderRadius: BorderRadius.circular(40),
-                  ),
+                Material(
+                  color: Theme.of(context).colorScheme.surface,
+                  borderRadius: BorderRadius.circular(40),
+                  clipBehavior: Clip.antiAlias,
                   child: Row(
                     children: [
-                      IconButton(
-                        icon: const Icon(Icons.remove),
-                        padding: const EdgeInsets.all(24),
-                        onPressed: () => _changeTemp(device, -1),
+                      InkWell(
+                        onTap: () => _changeTemp(device, -1),
+                        child: const Padding(
+                          padding: EdgeInsets.all(24),
+                          child: Icon(Icons.remove),
+                        ),
                       ),
                       const Expanded(
                         child: Text(
@@ -158,10 +166,12 @@ class _AcRemoteScreenState extends ConsumerState<AcRemoteScreen> {
                           style: TextStyle(fontSize: 18),
                         ),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.add),
-                        padding: const EdgeInsets.all(24),
-                        onPressed: () => _changeTemp(device, 1),
+                      InkWell(
+                        onTap: () => _changeTemp(device, 1),
+                        child: const Padding(
+                          padding: EdgeInsets.all(24),
+                          child: Icon(Icons.add),
+                        ),
                       ),
                     ],
                   ),
@@ -217,56 +227,57 @@ class _AcRemoteScreenState extends ConsumerState<AcRemoteScreen> {
   }
 
   Widget _buildPillButton(BuildContext context, IconData icon, String text, {Color? iconColor, required VoidCallback onTap}) {
-    return InkWell(
-      onTap: onTap,
+    return Material(
+      color: Theme.of(context).colorScheme.surface,
       borderRadius: BorderRadius.circular(40),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 24),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(40),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: iconColor),
-            const SizedBox(width: 8),
-            Text(text, style: const TextStyle(fontSize: 18)),
-          ],
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 24),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: iconColor),
+              const SizedBox(width: 8),
+              Text(text, style: const TextStyle(fontSize: 18)),
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget _buildModeButton(BuildContext context, IrDevice device, String label, IconData icon, bool isSelected) {
-    return GestureDetector(
-      onTap: () {
-        if (['Auto', 'Cool', 'Heating', 'Dry', 'Fan'].contains(label)) {
-          _setMode(device, label);
-        } else {
-          _sendCommand(device, label.toLowerCase());
-        }
-      },
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: isSelected ? Colors.blueAccent : Colors.white.withValues(alpha: 0.05),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: isSelected ? Colors.white : Colors.grey.shade400),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: isSelected ? Colors.white : Colors.grey.shade400,
+    return Column(
+      children: [
+        Material(
+          color: isSelected ? Colors.blueAccent : Colors.white.withValues(alpha: 0.05),
+          shape: const CircleBorder(),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: () {
+              if (['Auto', 'Cool', 'Heating', 'Dry', 'Fan'].contains(label)) {
+                _setMode(device, label);
+              } else {
+                _sendCommand(device, label.toLowerCase());
+              }
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Icon(icon, color: isSelected ? Colors.white : Colors.grey.shade400),
             ),
           ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            color: isSelected ? Colors.white : Colors.grey.shade400,
+          ),
+        ),
+      ],
     );
   }
 }

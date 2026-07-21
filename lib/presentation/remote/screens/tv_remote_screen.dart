@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../domain/entities/ir_device.dart';
@@ -11,6 +12,7 @@ class TvRemoteScreen extends ConsumerWidget {
   const TvRemoteScreen({super.key, required this.deviceId});
 
   void _sendCommand(BuildContext context, WidgetRef ref, IrDevice device, String command) async {
+    HapticFeedback.lightImpact();
     final pattern = device.buttons[command];
     if (pattern != null) {
       final repo = ref.read(irRepositoryProvider);
@@ -22,7 +24,12 @@ class TvRemoteScreen extends ConsumerWidget {
         );
         return;
       }
-      await repo.transmit(device.carrierFrequency, pattern);
+      final success = await repo.transmit(device.carrierFrequency, pattern);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(success ? 'Sent $command command' : 'Failed to send $command')),
+        );
+      }
     }
   }
 
@@ -122,22 +129,22 @@ class TvRemoteScreen extends ConsumerWidget {
   }
 
   Widget _buildPillButton(BuildContext context, IconData icon, String text, {Color? iconColor, required VoidCallback onTap}) {
-    return InkWell(
-      onTap: onTap,
+    return Material(
+      color: Theme.of(context).colorScheme.surface,
       borderRadius: BorderRadius.circular(40),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 24),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(40),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: iconColor),
-            const SizedBox(width: 8),
-            Text(text, style: const TextStyle(fontSize: 18)),
-          ],
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 24),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: iconColor),
+              const SizedBox(width: 8),
+              Text(text, style: const TextStyle(fontSize: 18)),
+            ],
+          ),
         ),
       ),
     );
@@ -151,28 +158,29 @@ class TvRemoteScreen extends ConsumerWidget {
     VoidCallback onUp,
     VoidCallback onDown,
   ) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(32),
-      ),
+    return Material(
+      color: Theme.of(context).colorScheme.surface,
+      borderRadius: BorderRadius.circular(32),
+      clipBehavior: Clip.antiAlias,
       child: Column(
         children: [
-          IconButton(
-            icon: Icon(upIcon),
-            iconSize: 32,
-            padding: const EdgeInsets.all(24),
-            onPressed: onUp,
+          InkWell(
+            onTap: onUp,
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Icon(upIcon, size: 32),
+            ),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
           ),
-          IconButton(
-            icon: Icon(downIcon),
-            iconSize: 32,
-            padding: const EdgeInsets.all(24),
-            onPressed: onDown,
+          InkWell(
+            onTap: onDown,
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Icon(downIcon, size: 32),
+            ),
           ),
         ],
       ),
@@ -180,61 +188,62 @@ class TvRemoteScreen extends ConsumerWidget {
   }
 
   Widget _buildDPad(BuildContext context, WidgetRef ref, IrDevice device) {
-    return Container(
-      width: 250,
-      height: 250,
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        shape: BoxShape.circle,
-      ),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Positioned(
-            top: 16,
-            child: IconButton(
-              icon: const Icon(Icons.keyboard_arrow_up, size: 40),
-              onPressed: () => _sendCommand(context, ref, device, 'up'),
-            ),
-          ),
-          Positioned(
-            bottom: 16,
-            child: IconButton(
-              icon: const Icon(Icons.keyboard_arrow_down, size: 40),
-              onPressed: () => _sendCommand(context, ref, device, 'down'),
-            ),
-          ),
-          Positioned(
-            left: 16,
-            child: IconButton(
-              icon: const Icon(Icons.keyboard_arrow_left, size: 40),
-              onPressed: () => _sendCommand(context, ref, device, 'left'),
-            ),
-          ),
-          Positioned(
-            right: 16,
-            child: IconButton(
-              icon: const Icon(Icons.keyboard_arrow_right, size: 40),
-              onPressed: () => _sendCommand(context, ref, device, 'right'),
-            ),
-          ),
-          Center(
-            child: InkWell(
-              onTap: () => _sendCommand(context, ref, device, 'ok'),
-              borderRadius: BorderRadius.circular(40),
-              child: Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                alignment: Alignment.center,
-                child: const Text('OK', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+    return Material(
+      color: Theme.of(context).colorScheme.surface,
+      shape: const CircleBorder(),
+      clipBehavior: Clip.antiAlias,
+      child: SizedBox(
+        width: 250,
+        height: 250,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Positioned(
+              top: 8,
+              child: IconButton(
+                icon: const Icon(Icons.keyboard_arrow_up, size: 40),
+                onPressed: () => _sendCommand(context, ref, device, 'up'),
               ),
             ),
-          ),
-        ],
+            Positioned(
+              bottom: 8,
+              child: IconButton(
+                icon: const Icon(Icons.keyboard_arrow_down, size: 40),
+                onPressed: () => _sendCommand(context, ref, device, 'down'),
+              ),
+            ),
+            Positioned(
+              left: 8,
+              child: IconButton(
+                icon: const Icon(Icons.keyboard_arrow_left, size: 40),
+                onPressed: () => _sendCommand(context, ref, device, 'left'),
+              ),
+            ),
+            Positioned(
+              right: 8,
+              child: IconButton(
+                icon: const Icon(Icons.keyboard_arrow_right, size: 40),
+                onPressed: () => _sendCommand(context, ref, device, 'right'),
+              ),
+            ),
+            Center(
+              child: Material(
+                color: Colors.white.withValues(alpha: 0.1),
+                shape: const CircleBorder(),
+                clipBehavior: Clip.antiAlias,
+                child: InkWell(
+                  onTap: () => _sendCommand(context, ref, device, 'ok'),
+                  child: Container(
+                    width: 80,
+                    height: 80,
+                    alignment: Alignment.center,
+                    child: const Text('OK', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
