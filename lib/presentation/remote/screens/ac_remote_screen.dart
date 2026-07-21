@@ -24,11 +24,10 @@ class _AcRemoteScreenState extends ConsumerState<AcRemoteScreen> {
       final repo = ref.read(irRepositoryProvider);
       final hasEmitter = await repo.hasIrEmitter();
       if (!hasEmitter) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Simulated sending $command command (No IR Emitter)')),
-          );
-        }
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Simulated sending $command command (No IR Emitter)')),
+        );
         return;
       }
       await repo.transmit(device.carrierFrequency, pattern);

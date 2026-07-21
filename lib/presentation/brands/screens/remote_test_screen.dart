@@ -29,21 +29,19 @@ class _RemoteTestScreenState extends ConsumerState<RemoteTestScreen> {
     
     final hasEmitter = await repo.hasIrEmitter();
     if (!hasEmitter) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No IR Emitter found. Simulating signal sent!')),
-        );
-      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No IR Emitter found. Simulating signal sent!')),
+      );
       return;
     }
 
     if (powerPattern != null) {
       final success = await repo.transmit(device.carrierFrequency, powerPattern);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(success ? 'Signal sent!' : 'Failed to send signal.')),
-        );
-      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(success ? 'Signal sent!' : 'Failed to send signal.')),
+      );
     }
   }
 
@@ -128,13 +126,13 @@ class _RemoteTestScreenState extends ConsumerState<RemoteTestScreen> {
                         final defaultName = '${widget.brand} ${widget.category}';
                         await repo.saveUserRemote(defaultName, currentDevice.id);
                         
-                        if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('$defaultName saved to home screen!')),
-                          );
-                          // Go back to home screen to see the saved remote
-                          context.go('/');
-                        }
+                        if (!context.mounted) return;
+                        
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('$defaultName saved to home screen!')),
+                        );
+                        // Go back to home screen to see the saved remote
+                        context.go('/');
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
