@@ -22,9 +22,7 @@ class UniversalSmartRemoteApp extends ConsumerWidget {
 
     return MaterialApp.router(
       title: 'Universal Smart Remote',
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
+      theme: AppTheme.theme,
       routerConfig: router,
     );
   }

@@ -1,5 +1,6 @@
 import '../../core/channels/ir_channel.dart';
 import '../../domain/entities/ir_device.dart';
+import '../../domain/entities/saved_remote.dart';
 import '../../domain/repositories/ir_repository.dart';
 import '../datasources/local/sqlite_db.dart';
 import '../models/ir_device_model.dart';
@@ -38,6 +39,27 @@ class IrRepositoryImpl implements IrRepository {
       buttons: device.buttons,
     );
     await _localDb.insertDevice(model);
+  }
+
+  @override
+  Future<int> saveUserRemote(String name, int deviceId) async {
+    return await _localDb.saveUserRemote(name, deviceId);
+  }
+
+  @override
+  Future<List<SavedRemote>> getSavedRemotes() async {
+    final models = await _localDb.getSavedRemotes();
+    return models.map((e) => e.toEntity()).toList();
+  }
+
+  @override
+  Future<void> deleteSavedRemote(int id) async {
+    await _localDb.deleteSavedRemote(id);
+  }
+
+  @override
+  Future<void> renameSavedRemote(int id, String newName) async {
+    await _localDb.renameSavedRemote(id, newName);
   }
 
   @override

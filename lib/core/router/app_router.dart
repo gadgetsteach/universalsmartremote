@@ -1,11 +1,13 @@
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../presentation/home/screens/home_screen.dart';
+import '../../presentation/home/screens/saved_remotes_screen.dart';
+import '../../presentation/categories/screens/category_screen.dart';
 import '../../presentation/brands/screens/brand_list_screen.dart';
 import '../../presentation/brands/screens/remote_test_screen.dart';
 import '../../presentation/remote/screens/tv_remote_screen.dart';
 import '../../presentation/remote/screens/ac_remote_screen.dart';
+import '../../presentation/settings/screens/settings_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -13,7 +15,15 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(
         path: '/',
-        builder: (context, state) => const HomeScreen(),
+        builder: (context, state) => const SavedRemotesScreen(),
+      ),
+      GoRoute(
+        path: '/add',
+        builder: (context, state) => const CategoryScreen(),
+      ),
+      GoRoute(
+        path: '/settings',
+        builder: (context, state) => const SettingsScreen(),
       ),
       GoRoute(
         path: '/brands/:category',

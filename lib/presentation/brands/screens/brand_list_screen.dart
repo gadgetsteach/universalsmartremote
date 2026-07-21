@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../providers/brands_provider.dart';
 
-class BrandListScreen extends ConsumerWidget {
+class BrandListScreen extends ConsumerStatefulWidget {
   final String category;
 
   const BrandListScreen({
@@ -13,30 +13,91 @@ class BrandListScreen extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final brandsAsync = ref.watch(brandsProvider(category));
+  ConsumerState<BrandListScreen> createState() => _BrandListScreenState();
+}
+
+class _BrandListScreenState extends ConsumerState<BrandListScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  @override
+  Widget build(BuildContext context) {
+    final brandsAsync = ref.watch(brandsProvider(widget.category));
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Select $category Brand'),
+        title: const Text('Select brand'),
       ),
       body: brandsAsync.when(
         data: (brands) {
-          if (brands.isEmpty) {
-            return const Center(child: Text('No brands found.'));
-          }
-          return ListView.builder(
-            itemCount: brands.length,
-            itemBuilder: (context, index) {
-              final brand = brands[index];
-              return ListTile(
-                title: Text(brand),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () {
-                  context.push('/test/$category/$brand');
-                },
-              );
-            },
+          final filteredBrands = brands.where((b) => b.toLowerCase().contains(_searchQuery.toLowerCase())).toList();
+          
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: TextField(
+                  controller: _searchController,
+                  onChanged: (val) {
+                    setState(() {
+                      _searchQuery = val;
+                    });
+                  },
+                  decoration: InputDecoration(
+                    hintText: 'Search',
+                    prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                    filled: true,
+                    fillColor: Theme.of(context).colorScheme.surface,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(32),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                  ),
+                ),
+              ),
+              if (_searchQuery.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  child: Text('Popular', style: TextStyle(color: Colors.grey)),
+                ),
+              if (_searchQuery.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Wrap(
+                    spacing: 8.0,
+                    runSpacing: 8.0,
+                    children: brands.take(10).map((brand) {
+                      return ActionChip(
+                        label: Text(brand),
+                        backgroundColor: Theme.of(context).colorScheme.surface,
+                        side: BorderSide.none,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        onPressed: () {
+                          context.push('/test/${widget.category}/$brand');
+                        },
+                      );
+                    }).toList(),
+                  ),
+                ),
+              const SizedBox(height: 16),
+              Expanded(
+                child: ListView.separated(
+                  itemCount: filteredBrands.length,
+                  separatorBuilder: (context, index) => const Divider(height: 1, indent: 16, endIndent: 16),
+                  itemBuilder: (context, index) {
+                    final brand = filteredBrands[index];
+                    return ListTile(
+                      title: Text(brand),
+                      onTap: () {
+                        context.push('/test/${widget.category}/$brand');
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),

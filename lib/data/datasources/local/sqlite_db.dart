@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../../models/ir_device_model.dart';
+import '../../models/saved_remote_model.dart';
 import 'seed_data.dart';
 
 class SQLiteDB {
@@ -41,6 +42,15 @@ CREATE TABLE devices (
   model $textType,
   carrierFrequency $integerType,
   buttons $textType
+  )
+''');
+
+    await db.execute('''
+CREATE TABLE saved_remotes (
+  id $idType,
+  name $textType,
+  device_id $integerType,
+  FOREIGN KEY (device_id) REFERENCES devices (id)
   )
 ''');
 
@@ -123,5 +133,40 @@ CREATE TABLE devices (
       carrierFrequency: json['carrierFrequency'] as int,
       buttons: typedButtonsMap,
     );
+  }
+
+  // Saved Remotes
+  Future<int> saveUserRemote(String name, int deviceId) async {
+    final db = await instance.database;
+    final data = {
+      'name': name,
+      'device_id': deviceId,
+    };
+    return await db.insert('saved_remotes', data);
+  }
+
+  Future<List<SavedRemoteModel>> getSavedRemotes() async {
+    final db = await instance.database;
+    final result = await db.query('saved_remotes');
+    
+    List<SavedRemoteModel> savedRemotes = [];
+    for (var row in result) {
+      final deviceId = row['device_id'] as int;
+      final device = await getDeviceById(deviceId);
+      if (device != null) {
+        savedRemotes.add(SavedRemoteModel.fromJson(row, device: device));
+      }
+    }
+    return savedRemotes;
+  }
+
+  Future<void> deleteSavedRemote(int id) async {
+    final db = await instance.database;
+    await db.delete('saved_remotes', where: 'id = ?', whereArgs: [id]);
+  }
+
+  Future<void> renameSavedRemote(int id, String newName) async {
+    final db = await instance.database;
+    await db.update('saved_remotes', {'name': newName}, where: 'id = ?', whereArgs: [id]);
   }
 }
