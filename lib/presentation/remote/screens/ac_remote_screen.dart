@@ -55,8 +55,7 @@ class _AcRemoteScreenState extends ConsumerState<AcRemoteScreen> {
     setState(() {
       _currentMode = mode;
     });
-    // In a real scenario, you'd send a specific mode command. We map it to 'mode' for now.
-    _sendCommand(device, 'mode');
+    _sendCommand(device, mode.toLowerCase());
   }
 
   Future<void> _handleMenuAction(String value) async {
@@ -351,6 +350,73 @@ class _AcRemoteScreenState extends ConsumerState<AcRemoteScreen> {
     );
   }
 
+  void _showMoreControls(BuildContext context, IrDevice device) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (BuildContext context) {
+        return Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Advanced Controls',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 24),
+              Wrap(
+                spacing: 16,
+                runSpacing: 24,
+                alignment: WrapAlignment.center,
+                children: [
+                  _buildAdvancedButton(context, device, 'Turbo', Icons.flash_on),
+                  _buildAdvancedButton(context, device, 'Quiet', Icons.volume_mute),
+                  _buildAdvancedButton(context, device, 'Econo', Icons.eco),
+                  _buildAdvancedButton(context, device, 'Light', Icons.lightbulb_outline),
+                  _buildAdvancedButton(context, device, 'Clean', Icons.cleaning_services),
+                  _buildAdvancedButton(context, device, 'Filter', Icons.air),
+                  _buildAdvancedButton(context, device, 'Beep', Icons.notifications_active),
+                  _buildAdvancedButton(context, device, 'iFeel', Icons.sensors),
+                  _buildAdvancedButton(context, device, 'Swing H', Icons.swap_horiz),
+                  _buildAdvancedButton(context, device, 'Swing V', Icons.swap_vert),
+                ],
+              ),
+              const SizedBox(height: 24),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildAdvancedButton(BuildContext context, IrDevice device, String label, IconData icon) {
+    return InkWell(
+      onTap: () {
+        Navigator.pop(context); // Close bottom sheet
+        String command = label.toLowerCase().replaceAll(' ', '_');
+        _sendCommand(device, command);
+      },
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: Theme.of(context).colorScheme.onSurfaceVariant),
+          ),
+          const SizedBox(height: 8),
+          Text(label, style: Theme.of(context).textTheme.labelSmall),
+        ],
+      ),
+    );
+  }
+
   Widget _buildModeButton(BuildContext context, IrDevice device, String label, IconData icon, bool isSelected) {
     return Column(
       children: [
@@ -362,6 +428,8 @@ class _AcRemoteScreenState extends ConsumerState<AcRemoteScreen> {
             onTap: () {
               if (['Auto', 'Cool', 'Heating', 'Dry', 'Fan'].contains(label)) {
                 _setMode(device, label);
+              } else if (label == 'More') {
+                _showMoreControls(context, device);
               } else {
                 _sendCommand(device, label.toLowerCase());
               }

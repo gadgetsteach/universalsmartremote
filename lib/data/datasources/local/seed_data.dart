@@ -112,25 +112,41 @@ List<IrDeviceModel> getSeedData() {
       'direction': generatePattern(modelCode * 10 + 13),
       'fan speed': generatePattern(modelCode * 10 + 14),
       'more': generatePattern(modelCode * 10 + 15),
+      'turbo': generatePattern(modelCode * 10 + 16),
+      'quiet': generatePattern(modelCode * 10 + 17),
+      'econo': generatePattern(modelCode * 10 + 18),
+      'light': generatePattern(modelCode * 10 + 19),
+      'clean': generatePattern(modelCode * 10 + 20),
+      'filter': generatePattern(modelCode * 10 + 21),
+      'beep': generatePattern(modelCode * 10 + 22),
+      'ifeel': generatePattern(modelCode * 10 + 23),
+      'swing_h': generatePattern(modelCode * 10 + 24),
+      'swing_v': generatePattern(modelCode * 10 + 25),
     };
   }
 
-  final acButtons = {
-    'power': generateGenericNecPattern(101),
-    'swing': generateGenericNecPattern(102),
-    'temp_up': generateGenericNecPattern(103),
-    'temp_down': generateGenericNecPattern(104),
-    'mode': generateGenericNecPattern(105),
-    'auto': generateGenericNecPattern(106),
-    'cool': generateGenericNecPattern(107),
-    'heating': generateGenericNecPattern(108),
-    'dry': generateGenericNecPattern(109),
-    'fan': generateGenericNecPattern(110),
-    'sleep': generateGenericNecPattern(111),
-    'timer': generateGenericNecPattern(112),
-    'direction': generateGenericNecPattern(113),
-    'fan speed': generateGenericNecPattern(114),
-    'more': generateGenericNecPattern(115),
+  final Map<String, int> acBrandBitLengths = {
+    'Blue Star': 104,
+    'Bosch': 144,
+    'Carrier': 88,
+    'Daikin': 280,
+    'Electrolux': 104,
+    'Frigidaire': 104, 
+    'Fujitsu': 128,
+    'Gree': 64,
+    'Haier': 72,
+    'Hitachi': 224,
+    'Kelvinator': 128,
+    'LG': 104,
+    'Mitsubishi': 144,
+    'Panasonic': 216,
+    'Samsung': 112,
+    'Sanyo': 72,
+    'TCL': 112,
+    'Toshiba': 72,
+    'Voltas': 80,
+    'Whirlpool': 168,
+    'York': 136,
   };
 
   void addAcModel(String brand, int modelId, int bitLength) {
@@ -167,6 +183,7 @@ List<IrDeviceModel> getSeedData() {
     } else {
       // Generate 5-10 models per brand
       final numModels = random.nextInt(6) + 5;
+      final int bitLength = acBrandBitLengths[brand] ?? 144; // Default to 144 bits if unknown
       for (int i = 1; i <= numModels; i++) {
         devices.add(
           IrDeviceModel(
@@ -176,7 +193,7 @@ List<IrDeviceModel> getSeedData() {
             series: 'Inverter ${random.nextInt(3) + 1} Ton',
             model: 'Model $i-${random.nextInt(9000) + 1000}',
             carrierFrequency: 38000,
-            buttons: acButtons,
+            buttons: generateCompositeAcButtons(i, bitLength),
           )
         );
       }
