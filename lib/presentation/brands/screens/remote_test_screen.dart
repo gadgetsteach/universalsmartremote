@@ -26,6 +26,17 @@ class _RemoteTestScreenState extends ConsumerState<RemoteTestScreen> {
   void _testPower(IrDevice device) async {
     final repo = ref.read(irRepositoryProvider);
     final powerPattern = device.buttons['power'];
+    
+    final hasEmitter = await repo.hasIrEmitter();
+    if (!hasEmitter) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No IR Emitter found. Simulating signal sent!')),
+        );
+      }
+      return;
+    }
+
     if (powerPattern != null) {
       final success = await repo.transmit(device.carrierFrequency, powerPattern);
       if (mounted) {
@@ -112,9 +123,18 @@ class _RemoteTestScreenState extends ConsumerState<RemoteTestScreen> {
                       child: const Text('No, Next Config'),
                     ),
                     ElevatedButton(
-                      onPressed: () {
-                        final route = widget.category.toLowerCase() == 'tv' ? '/remote/tv' : '/remote/ac';
-                        context.push('$route/${currentDevice.id}');
+                      onPressed: () async {
+                        final repo = ref.read(irRepositoryProvider);
+                        final defaultName = '${widget.brand} ${widget.category}';
+                        await repo.saveUserRemote(defaultName, currentDevice.id);
+                        
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('$defaultName saved to home screen!')),
+                          );
+                          // Go back to home screen to see the saved remote
+                          context.go('/');
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,

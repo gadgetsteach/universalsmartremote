@@ -10,10 +10,19 @@ class TvRemoteScreen extends ConsumerWidget {
 
   const TvRemoteScreen({super.key, required this.deviceId});
 
-  void _sendCommand(WidgetRef ref, IrDevice device, String command) async {
+  void _sendCommand(BuildContext context, WidgetRef ref, IrDevice device, String command) async {
     final pattern = device.buttons[command];
     if (pattern != null) {
       final repo = ref.read(irRepositoryProvider);
+      final hasEmitter = await repo.hasIrEmitter();
+      if (!hasEmitter) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Simulated sending $command command (No IR Emitter)')),
+          );
+        }
+        return;
+      }
       await repo.transmit(device.carrierFrequency, pattern);
     }
   }
@@ -63,7 +72,7 @@ class TvRemoteScreen extends ConsumerWidget {
                         Icons.power_settings_new,
                         'Power',
                         iconColor: Colors.red,
-                        onTap: () => _sendCommand(ref, device, 'power'),
+                        onTap: () => _sendCommand(context, ref, device, 'power'),
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -72,7 +81,7 @@ class TvRemoteScreen extends ConsumerWidget {
                         context,
                         Icons.volume_off,
                         'Mute',
-                        onTap: () => _sendCommand(ref, device, 'mute'),
+                        onTap: () => _sendCommand(context, ref, device, 'mute'),
                       ),
                     ),
                   ],
@@ -87,16 +96,16 @@ class TvRemoteScreen extends ConsumerWidget {
                       'VOL',
                       Icons.add,
                       Icons.remove,
-                      () => _sendCommand(ref, device, 'vol_up'),
-                      () => _sendCommand(ref, device, 'vol_down'),
+                      () => _sendCommand(context, ref, device, 'vol_up'),
+                      () => _sendCommand(context, ref, device, 'vol_down'),
                     ),
                     _buildRocker(
                       context,
                       'CH',
                       Icons.keyboard_arrow_up,
                       Icons.keyboard_arrow_down,
-                      () => _sendCommand(ref, device, 'ch_up'),
-                      () => _sendCommand(ref, device, 'ch_down'),
+                      () => _sendCommand(context, ref, device, 'ch_up'),
+                      () => _sendCommand(context, ref, device, 'ch_down'),
                     ),
                   ],
                 ),
@@ -186,33 +195,33 @@ class TvRemoteScreen extends ConsumerWidget {
             top: 16,
             child: IconButton(
               icon: const Icon(Icons.keyboard_arrow_up, size: 40),
-              onPressed: () => _sendCommand(ref, device, 'up'),
+              onPressed: () => _sendCommand(context, ref, device, 'up'),
             ),
           ),
           Positioned(
             bottom: 16,
             child: IconButton(
               icon: const Icon(Icons.keyboard_arrow_down, size: 40),
-              onPressed: () => _sendCommand(ref, device, 'down'),
+              onPressed: () => _sendCommand(context, ref, device, 'down'),
             ),
           ),
           Positioned(
             left: 16,
             child: IconButton(
               icon: const Icon(Icons.keyboard_arrow_left, size: 40),
-              onPressed: () => _sendCommand(ref, device, 'left'),
+              onPressed: () => _sendCommand(context, ref, device, 'left'),
             ),
           ),
           Positioned(
             right: 16,
             child: IconButton(
               icon: const Icon(Icons.keyboard_arrow_right, size: 40),
-              onPressed: () => _sendCommand(ref, device, 'right'),
+              onPressed: () => _sendCommand(context, ref, device, 'right'),
             ),
           ),
           Center(
             child: InkWell(
-              onTap: () => _sendCommand(ref, device, 'ok'),
+              onTap: () => _sendCommand(context, ref, device, 'ok'),
               borderRadius: BorderRadius.circular(40),
               child: Container(
                 width: 80,
