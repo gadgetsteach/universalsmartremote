@@ -46,7 +46,7 @@ class _BrandListScreenState extends ConsumerState<BrandListScreen> {
                   },
                   decoration: InputDecoration(
                     hintText: 'Search',
-                    prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                    prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.onSurfaceVariant),
                     filled: true,
                     fillColor: Theme.of(context).colorScheme.surface,
                     border: OutlineInputBorder(
@@ -58,9 +58,9 @@ class _BrandListScreenState extends ConsumerState<BrandListScreen> {
                 ),
               ),
               if (_searchQuery.isEmpty)
-                const Padding(
+                Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                  child: Text('Popular', style: TextStyle(color: Colors.grey)),
+                  child: Text('Popular', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                 ),
               if (_searchQuery.isEmpty)
                 Padding(

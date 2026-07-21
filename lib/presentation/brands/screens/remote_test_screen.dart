@@ -83,17 +83,17 @@ class _RemoteTestScreenState extends ConsumerState<RemoteTestScreen> {
                     width: 128,
                     height: 128,
                     decoration: BoxDecoration(
-                      color: Colors.red,
+                      color: Theme.of(context).colorScheme.error,
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.red.withValues(alpha: 0.4),
+                          color: Theme.of(context).colorScheme.error.withValues(alpha: 0.4),
                           blurRadius: 16,
                           spreadRadius: 4,
                         ),
                       ],
                     ),
-                    child: const Icon(Icons.power_settings_new, size: 64, color: Colors.white),
+                    child: Icon(Icons.power_settings_new, size: 64, color: Theme.of(context).colorScheme.onError),
                   ),
                 ),
                 const SizedBox(height: 48),
@@ -115,8 +115,8 @@ class _RemoteTestScreenState extends ConsumerState<RemoteTestScreen> {
                         }
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey.shade300,
-                        foregroundColor: Colors.black,
+                        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                        foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                       child: const Text('No, Next Config'),
                     ),
@@ -135,8 +135,8 @@ class _RemoteTestScreenState extends ConsumerState<RemoteTestScreen> {
                         context.go('/');
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        foregroundColor: Colors.white,
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        foregroundColor: Theme.of(context).colorScheme.onPrimary,
                       ),
                       child: const Text('Yes, It Works!'),
                     ),

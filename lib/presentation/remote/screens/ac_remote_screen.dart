@@ -128,7 +128,7 @@ class _AcRemoteScreenState extends ConsumerState<AcRemoteScreen> {
                 ),
                 TextButton(
                   onPressed: () => Navigator.pop(context, true),
-                  child: const Text('Delete', style: TextStyle(color: Colors.red)),
+                  child: Text('Delete', style: TextStyle(color: Theme.of(context).colorScheme.error)),
                 ),
               ],
             ),
@@ -173,7 +173,15 @@ class _AcRemoteScreenState extends ConsumerState<AcRemoteScreen> {
                 const PopupMenuItem(value: 'pair', child: Text('Pair again')),
                 const PopupMenuItem(value: 'add_home', child: Text('Add to Home screen')),
                 const PopupMenuItem(value: 'share', child: Text('Share')),
-                const PopupMenuItem(value: 'delete', child: Text('Delete', style: TextStyle(color: Colors.red))),
+                PopupMenuItem(
+                  value: 'delete',
+                  child: Text(
+                    'Delete',
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                  ),
+                ),
               ];
             },
           ),
@@ -192,7 +200,7 @@ class _AcRemoteScreenState extends ConsumerState<AcRemoteScreen> {
                 // Display
                 Text(
                   '$_currentTemp',
-                  style: const TextStyle(fontSize: 80, fontWeight: FontWeight.w300),
+                  style: Theme.of(context).textTheme.displayLarge?.copyWith(fontWeight: FontWeight.w300),
                 ),
                 const SizedBox(height: 8),
                 Row(
@@ -200,15 +208,15 @@ class _AcRemoteScreenState extends ConsumerState<AcRemoteScreen> {
                   children: [
                     Column(
                       children: [
-                        Text(_currentMode, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                        const Text('Mode', style: TextStyle(color: Colors.grey)),
+                        Text(_currentMode, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                        Text('Mode', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                       ],
                     ),
                     const SizedBox(width: 48),
-                    const Column(
+                    Column(
                       children: [
-                        Text('Auto', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                        Text('Fan speed', style: TextStyle(color: Colors.grey)),
+                        Text('Auto', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                        Text('Fan speed', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                       ],
                     ),
                   ],
@@ -254,11 +262,11 @@ class _AcRemoteScreenState extends ConsumerState<AcRemoteScreen> {
                           child: Icon(Icons.remove),
                         ),
                       ),
-                      const Expanded(
+                      Expanded(
                         child: Text(
                           'Temperature',
                           textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 18),
+                          style: Theme.of(context).textTheme.titleMedium,
                         ),
                       ),
                       InkWell(
@@ -335,7 +343,7 @@ class _AcRemoteScreenState extends ConsumerState<AcRemoteScreen> {
             children: [
               Icon(icon, color: iconColor),
               const SizedBox(width: 8),
-              Text(text, style: const TextStyle(fontSize: 18)),
+              Text(text, style: Theme.of(context).textTheme.titleMedium),
             ],
           ),
         ),
@@ -347,7 +355,7 @@ class _AcRemoteScreenState extends ConsumerState<AcRemoteScreen> {
     return Column(
       children: [
         Material(
-          color: isSelected ? Colors.blueAccent : Colors.white.withValues(alpha: 0.05),
+          color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
           shape: const CircleBorder(),
           clipBehavior: Clip.antiAlias,
           child: InkWell(
@@ -360,16 +368,15 @@ class _AcRemoteScreenState extends ConsumerState<AcRemoteScreen> {
             },
             child: Padding(
               padding: const EdgeInsets.all(16),
-              child: Icon(icon, color: isSelected ? Colors.white : Colors.grey.shade400),
+              child: Icon(icon, color: isSelected ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onSurfaceVariant),
             ),
           ),
         ),
         const SizedBox(height: 8),
         Text(
           label,
-          style: TextStyle(
-            fontSize: 12,
-            color: isSelected ? Colors.white : Colors.grey.shade400,
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+            color: isSelected ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
       ],

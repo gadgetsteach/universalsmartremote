@@ -13,7 +13,7 @@ class SavedRemotesScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('IR Remote', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
+        title: Text('IR Remote', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
@@ -31,7 +31,7 @@ class SavedRemotesScreen extends ConsumerWidget {
             savedRemotesAsync.when(
               data: (remotes) => Text(
                 '${remotes.length} remotes',
-                style: TextStyle(color: Colors.grey.shade400, fontSize: 14),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
               loading: () => const Text('Loading...'),
               error: (_, _) => const Text('Error'),
@@ -63,17 +63,17 @@ class SavedRemotesScreen extends ConsumerWidget {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(
-                                remote.device.category.toLowerCase() == 'tv' ? Icons.tv : Icons.ac_unit,
-                                size: 64,
-                                color: Colors.grey.shade500,
-                              ),
+                                Icon(
+                                  remote.device.category.toLowerCase() == 'tv' ? Icons.tv : Icons.ac_unit,
+                                  size: 64,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
                               const SizedBox(height: 24),
                               Container(
                                 width: double.infinity,
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
-                                  color: Colors.grey.shade800,
+                                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
                                   borderRadius: const BorderRadius.only(
                                     bottomLeft: Radius.circular(16),
                                     bottomRight: Radius.circular(16),
@@ -82,7 +82,7 @@ class SavedRemotesScreen extends ConsumerWidget {
                                 child: Text(
                                   remote.name,
                                   textAlign: TextAlign.center,
-                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                 ),

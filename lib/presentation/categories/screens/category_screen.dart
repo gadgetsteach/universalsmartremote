@@ -19,11 +19,14 @@ class CategoryScreen extends StatelessWidget {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.all(16.0),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
             child: Text(
               'Add by device type',
-              style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
           Expanded(
@@ -70,10 +73,10 @@ class CategoryScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Center(child: Icon(icon, size: 40, color: Colors.grey.shade400)),
+            Center(child: Icon(icon, size: 40, color: Theme.of(context).colorScheme.onSurfaceVariant)),
             Text(
               title,
-              style: const TextStyle(fontWeight: FontWeight.w500),
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w500),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),

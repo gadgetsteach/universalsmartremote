@@ -14,7 +14,11 @@ class TvRemoteScreen extends ConsumerWidget {
 
   const TvRemoteScreen({super.key, required this.deviceId, this.savedRemoteId});
 
-  Future<void> _handleMenuAction(BuildContext context, WidgetRef ref, String value) async {
+  Future<void> _handleMenuAction(
+    BuildContext context,
+    WidgetRef ref,
+    String value,
+  ) async {
     switch (value) {
       case 'rename':
         if (savedRemoteId != null) {
@@ -52,7 +56,11 @@ class TvRemoteScreen extends ConsumerWidget {
           }
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Cannot rename an unsaved remote. Please save it first.')),
+            const SnackBar(
+              content: Text(
+                'Cannot rename an unsaved remote. Please save it first.',
+              ),
+            ),
           );
         }
         break;
@@ -61,7 +69,9 @@ class TvRemoteScreen extends ConsumerWidget {
         break;
       case 'add_home':
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Add to Home Screen not supported natively yet.')),
+          const SnackBar(
+            content: Text('Add to Home Screen not supported natively yet.'),
+          ),
         );
         break;
       case 'share':
@@ -75,7 +85,9 @@ class TvRemoteScreen extends ConsumerWidget {
             context: context,
             builder: (context) => AlertDialog(
               title: const Text('Delete Remote'),
-              content: const Text('Are you sure you want to delete this remote?'),
+              content: const Text(
+                'Are you sure you want to delete this remote?',
+              ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context, false),
@@ -83,7 +95,10 @@ class TvRemoteScreen extends ConsumerWidget {
                 ),
                 TextButton(
                   onPressed: () => Navigator.pop(context, true),
-                  child: const Text('Delete', style: TextStyle(color: Colors.red)),
+                  child: const Text(
+                    'Delete',
+                    style: TextStyle(color: Colors.red),
+                  ),
                 ),
               ],
             ),
@@ -94,9 +109,9 @@ class TvRemoteScreen extends ConsumerWidget {
             ref.invalidate(savedRemotesProvider);
             if (context.mounted) {
               context.go('/');
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Remote deleted')),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('Remote deleted')));
             }
           }
         } else {
@@ -108,7 +123,12 @@ class TvRemoteScreen extends ConsumerWidget {
     }
   }
 
-  void _sendCommand(BuildContext context, WidgetRef ref, IrDevice device, String command) async {
+  void _sendCommand(
+    BuildContext context,
+    WidgetRef ref,
+    IrDevice device,
+    String command,
+  ) async {
     HapticFeedback.lightImpact();
     final pattern = device.buttons[command];
     if (pattern != null) {
@@ -117,14 +137,20 @@ class TvRemoteScreen extends ConsumerWidget {
       if (!hasEmitter) {
         if (!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Simulated sending $command command (No IR Emitter)')),
+          SnackBar(
+            content: Text('Simulated sending $command command (No IR Emitter)'),
+          ),
         );
         return;
       }
       final success = await repo.transmit(device.carrierFrequency, pattern);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(success ? 'Sent $command command' : 'Failed to send $command')),
+          SnackBar(
+            content: Text(
+              success ? 'Sent $command command' : 'Failed to send $command',
+            ),
+          ),
         );
       }
     }
@@ -148,9 +174,15 @@ class TvRemoteScreen extends ConsumerWidget {
               return [
                 const PopupMenuItem(value: 'rename', child: Text('Rename')),
                 const PopupMenuItem(value: 'pair', child: Text('Pair again')),
-                const PopupMenuItem(value: 'add_home', child: Text('Add to Home screen')),
+                const PopupMenuItem(
+                  value: 'add_home',
+                  child: Text('Add to Home screen'),
+                ),
                 const PopupMenuItem(value: 'share', child: Text('Share')),
-                const PopupMenuItem(value: 'delete', child: Text('Delete', style: TextStyle(color: Colors.red))),
+                PopupMenuItem(
+                  value: 'delete',
+                  child: Text('Delete', style: TextStyle(color: Theme.of(context).colorScheme.error)),
+                ),
               ];
             },
           ),
@@ -163,7 +195,10 @@ class TvRemoteScreen extends ConsumerWidget {
           }
 
           return SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 24.0,
+            ),
             child: Column(
               children: [
                 // Top row: Power and Mute
@@ -175,7 +210,8 @@ class TvRemoteScreen extends ConsumerWidget {
                         Icons.power_settings_new,
                         'Power',
                         iconColor: Colors.red,
-                        onTap: () => _sendCommand(context, ref, device, 'power'),
+                        onTap: () =>
+                            _sendCommand(context, ref, device, 'power'),
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -225,7 +261,13 @@ class TvRemoteScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildPillButton(BuildContext context, IconData icon, String text, {Color? iconColor, required VoidCallback onTap}) {
+  Widget _buildPillButton(
+    BuildContext context,
+    IconData icon,
+    String text, {
+    Color? iconColor,
+    required VoidCallback onTap,
+  }) {
     return Material(
       color: Theme.of(context).colorScheme.surface,
       borderRadius: BorderRadius.circular(40),
@@ -239,7 +281,7 @@ class TvRemoteScreen extends ConsumerWidget {
             children: [
               Icon(icon, color: iconColor),
               const SizedBox(width: 8),
-              Text(text, style: const TextStyle(fontSize: 18)),
+              Text(text, style: Theme.of(context).textTheme.titleMedium),
             ],
           ),
         ),
@@ -270,7 +312,12 @@ class TvRemoteScreen extends ConsumerWidget {
           ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+            child: Text(
+              label,
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+            ),
           ),
           InkWell(
             onTap: onDown,
@@ -334,7 +381,12 @@ class TvRemoteScreen extends ConsumerWidget {
                     width: 80,
                     height: 80,
                     alignment: Alignment.center,
-                    child: const Text('OK', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                    child: Text(
+                      'OK',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ),
               ),
