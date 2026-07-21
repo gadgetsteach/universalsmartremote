@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../../models/ir_device_model.dart';
+import 'seed_data.dart';
 
 class SQLiteDB {
   static final SQLiteDB instance = SQLiteDB._init();
@@ -42,6 +43,20 @@ CREATE TABLE devices (
   buttons $textType
   )
 ''');
+
+    // Seed initial data
+    final seedData = getSeedData();
+    for (final device in seedData) {
+      final data = {
+        'category': device.category,
+        'brand': device.brand,
+        'series': device.series,
+        'model': device.model,
+        'carrierFrequency': device.carrierFrequency,
+        'buttons': jsonEncode(device.buttons),
+      };
+      await db.insert('devices', data, conflictAlgorithm: ConflictAlgorithm.replace);
+    }
   }
 
   Future<void> insertDevice(IrDeviceModel device) async {
@@ -77,20 +92,36 @@ CREATE TABLE devices (
       whereArgs: [brand],
     );
 
-    return result.map((json) {
-      final buttonsStr = json['buttons'] as String;
-      final buttonsMap = Map<String, List<dynamic>>.from(jsonDecode(buttonsStr));
-      final typedButtonsMap = buttonsMap.map((key, value) => MapEntry(key, value.map((e) => e as int).toList()));
-      
-      return IrDeviceModel(
-        id: json['id'] as int,
-        category: json['category'] as String,
-        brand: json['brand'] as String,
-        series: json['series'] as String,
-        model: json['model'] as String,
-        carrierFrequency: json['carrierFrequency'] as int,
-        buttons: typedButtonsMap,
-      );
-    }).toList();
+    return result.map((json) => _mapToModel(json)).toList();
+  }
+
+  Future<IrDeviceModel?> getDeviceById(int id) async {
+    final db = await instance.database;
+    final result = await db.query(
+      'devices',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+
+    if (result.isNotEmpty) {
+      return _mapToModel(result.first);
+    }
+    return null;
+  }
+
+  IrDeviceModel _mapToModel(Map<String, dynamic> json) {
+    final buttonsStr = json['buttons'] as String;
+    final buttonsMap = Map<String, List<dynamic>>.from(jsonDecode(buttonsStr));
+    final typedButtonsMap = buttonsMap.map((key, value) => MapEntry(key, value.map((e) => e as int).toList()));
+    
+    return IrDeviceModel(
+      id: json['id'] as int,
+      category: json['category'] as String,
+      brand: json['brand'] as String,
+      series: json['series'] as String,
+      model: json['model'] as String,
+      carrierFrequency: json['carrierFrequency'] as int,
+      buttons: typedButtonsMap,
+    );
   }
 }

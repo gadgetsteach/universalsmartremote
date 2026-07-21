@@ -21,6 +21,12 @@ class IrRepositoryImpl implements IrRepository {
   }
 
   @override
+  Future<IrDevice?> getDeviceById(int id) async {
+    final model = await _localDb.getDeviceById(id);
+    return model?.toEntity();
+  }
+
+  @override
   Future<void> saveDevice(IrDevice device) async {
     final model = IrDeviceModel(
       id: device.id,
